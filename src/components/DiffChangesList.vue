@@ -3,7 +3,7 @@
     class="mx-auto"
   >
     <v-list three-line>
-      <template v-for="(item, index) in activeSymbolInfo">
+      <template v-for="(item, index) in changedElements">
         <v-list-item
           :key="index"
         >
@@ -12,8 +12,7 @@
           </v-list-item-avatar>
 
           <v-list-item-content>
-            <v-list-item-title>{{item.lastUpdateId}}</v-list-item-title>
-            <v-list-item-subtitle>{{item.bids}}</v-list-item-subtitle>
+            <v-list-item-title>{{item[0]}}: {{item[1]}}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </template>
@@ -28,7 +27,7 @@ export default {
       
       }),
   computed: {
-      ...mapGetters(["activeSymbolInfo"])
+      ...mapGetters(["changedElements"])
   },    
 }
 </script>

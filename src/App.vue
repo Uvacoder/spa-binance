@@ -56,24 +56,51 @@
 </template>
 
 <script>
-import axios from 'axios'
+import { mapActions, mapGetters } from 'vuex';
 export default {
   data: () => ({
     drawer: null,
   }),
+  methods: {
+    ...mapActions(["updateActiveSymbol", "saveChangedElements", "updateValues"])
+  },
+  computed: {
+    ...mapGetters(["activeSymbolTitle"])
+  },
+  watch: {
+    activeSymbolTitle: function () {
+      const self = this;
+      this.connection.close();
+      this.connection = new WebSocket(`wss://stream.binance.com:9443/ws/${this.activeSymbolTitle.toLowerCase()}@depth`)
+
+    this.connection.onopen = function() {
+      self.updateActiveSymbol(self.activeSymbolTitle);
+      
+    }
+
+    this.connection.onmessage = function(event) {
+      self.saveChangedElements(JSON.parse(event.data));
+      self.updateValues(JSON.parse(event.data));
+    }
+    }
+  },
   created () {
+    const self = this;
     this.$vuetify.theme.dark = true;
 
-      axios
-        .get("https://api.binance.com/api/v3/depth", {
-          params: {
-            symbol: 'BTCUSDT',
-            limit: 100
-          }
-        })
-        .then(response => (
-          this.$store.state.activeSymbolInfo.unshift(response.data.bids, response.data.asks)
-          ))
+    this.connection = new WebSocket(`wss://stream.binance.com:9443/ws/${this.activeSymbolTitle.toLowerCase()}@depth`)
+
+    this.connection.onopen = function() {
+      self.updateActiveSymbol(self.activeSymbolTitle);
+      
+    }
+
+    this.connection.onmessage = function(event) {
+      self.saveChangedElements(JSON.parse(event.data));
+      self.updateValues(JSON.parse(event.data));
+    }
+
+
   },
 }
 </script>
